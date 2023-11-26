@@ -15,6 +15,23 @@ mod opt;
 /// Currently this is mostly an internal api
 pub mod output;
 
+pub trait HelpfulExpect<T> {
+    /// Print an error message and exit, rather than panicking
+    fn expecting(self, msg: impl std::fmt::Display) -> T;
+}
+
+impl<T, E: std::fmt::Debug> HelpfulExpect<T> for Result<T, E> {
+    fn expecting(self, msg: impl std::fmt::Display) -> T {
+        match self {
+            Ok(t) => t,
+            Err(e) => {
+                eprintln!("{msg}: {e:?}");
+                std::process::exit(1);
+            }
+        }
+    }
+}
+
 #[must_use]
 /// Gets the user's scoop path, via either the default path or as provided by the SCOOP env variable
 ///

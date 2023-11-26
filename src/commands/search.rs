@@ -15,6 +15,7 @@ use sfsu::{
     buckets,
     output::sectioned::{Children, Section, Sections, Text},
     packages::manifest::StringOrArrayOfStringsOrAnArrayOfArrayOfStrings,
+    HelpfulExpect,
 };
 
 use sfsu::packages::{is_installed, CreateManifest, Manifest};
@@ -227,7 +228,9 @@ impl super::Command for Args {
                 if self.case_sensitive { "" } else { "(?i)" },
                 &raw_pattern
             ))
-            .expect("Invalid Regex provided. See https://docs.rs/regex/latest/regex/ for more info")
+            .expecting(
+                "Invalid Regex provided. See https://docs.rs/regex/latest/regex/ for more info",
+            )
         };
 
         debug!("Matching with pattern {pattern}");
