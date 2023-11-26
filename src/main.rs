@@ -27,12 +27,10 @@ struct Args {
 fn main() -> anyhow::Result<()> {
     logger::handle_panics();
     let logging_path = logger::initialize_logging(log::LevelFilter::Trace)?;
-    debug!("Initialized logging at {}", logging_path.display());
-
-    println!("Logging into: {}", logging_path.display());
 
     let args = Args::parse();
     if args.no_color {
+        info!("Colour disabled");
         colored::control::set_override(false);
     }
 
