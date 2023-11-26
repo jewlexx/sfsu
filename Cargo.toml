@@ -5,7 +5,7 @@ version = "1.6.0"
 edition = "2021"
 
 [workspace]
-members = ["sfsu-derive"]
+members = ["sfsu-derive", "logger"]
 
 [profile.release]
 codegen-units = 1
@@ -23,7 +23,6 @@ derive_more = "0.99"
 directories = "5.0"
 dunce = "1.0"
 git2 = "0.18"
-human-panic = "1.2"
 itertools = "0.12"
 quork = "0.6"
 rayon = "1.8"
@@ -31,6 +30,8 @@ regex = "1.10"
 semver = { version = "1.0", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-sfsu-derive = { path = "./sfsu-derive" }
 strum = { version = "0.25", features = ["derive"] }
 thiserror = "1.0"
+
+sfsu-derive = { path = "./sfsu-derive" }
+logger = { path = "./logger" }

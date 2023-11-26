@@ -3,7 +3,6 @@
 // TODO: Replace regex with glob
 
 mod commands;
-mod logging;
 mod opt;
 
 use clap::Parser;
@@ -24,7 +23,7 @@ struct Args {
 }
 
 fn main() -> anyhow::Result<()> {
-    logging::panics::handle();
+    logger::handle_panics();
 
     let args = Args::parse();
     if args.no_color {
