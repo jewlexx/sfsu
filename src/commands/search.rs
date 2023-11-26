@@ -179,6 +179,8 @@ fn parse_output(
                 manifest.version
             );
 
+            debug!("Matched {title}");
+
             let package = if match_output.has_bin() {
                 let bins = match_output
                     .0
@@ -227,6 +229,8 @@ impl super::Command for Args {
             ))
             .expect("Invalid Regex provided. See https://docs.rs/regex/latest/regex/ for more info")
         };
+
+        debug!("Matching with pattern {pattern}");
 
         let all_scoop_buckets = buckets::Bucket::list_all()?;
 
