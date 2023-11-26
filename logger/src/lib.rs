@@ -27,10 +27,7 @@ pub fn initialize_logging(max_level: log::LevelFilter) -> std::io::Result<PathBu
         pub fn new(path: impl AsRef<Path>) -> std::io::Result<Self> {
             let fp = File::create(path)?;
 
-            Ok(Self {
-                fp: Mutex::new(fp),
-                // max_level,
-            })
+            Ok(Self { fp: Mutex::new(fp) })
         }
     }
 
@@ -43,8 +40,10 @@ pub fn initialize_logging(max_level: log::LevelFilter) -> std::io::Result<PathBu
             if self.enabled(record.metadata()) {
                 writeln!(
                     &mut self.fp.lock().unwrap(),
-                    "{} - {}",
+                    "{}@{}:{} - {}",
                     record.level(),
+                    record.file().unwrap(),
+                    record.line().unwrap(),
                     record.args()
                 )
                 .expect("writing to log to succeed");

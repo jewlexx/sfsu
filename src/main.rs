@@ -28,6 +28,14 @@ fn main() -> anyhow::Result<()> {
     logger::handle_panics();
     let logging_path = logger::initialize_logging(log::LevelFilter::Trace)?;
 
+    info!(
+        "Running {} version {} on {} {}",
+        env!("CARGO_PKG_NAME"),
+        env!("CARGO_PKG_VERSION"),
+        std::env::consts::OS,
+        std::env::consts::ARCH,
+    );
+
     let args = Args::parse();
     if args.no_color {
         info!("Colour disabled");
