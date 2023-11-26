@@ -4,6 +4,9 @@ use std::{ffi::OsStr, path::PathBuf};
 
 use rayon::prelude::*;
 
+#[macro_use]
+extern crate tracing;
+
 pub mod buckets;
 pub mod config;
 pub mod packages;

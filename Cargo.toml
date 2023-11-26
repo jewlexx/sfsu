@@ -11,6 +11,9 @@ members = ["sfsu-derive", "logger"]
 codegen-units = 1
 
 [dependencies]
+sfsu-derive = { path = "./sfsu-derive" }
+logger = { path = "./logger" }
+
 anyhow = "1.0"
 chrono = { version = "0.4.20", features = [
     "serde",
@@ -32,6 +35,6 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 strum = { version = "0.25", features = ["derive"] }
 thiserror = "1.0"
-
-sfsu-derive = { path = "./sfsu-derive" }
-logger = { path = "./logger" }
+tracing = "0.1"
+scopeguard = "1.2.0"
+log = "0.4.20"

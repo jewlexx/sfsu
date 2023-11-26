@@ -1,3 +1,5 @@
+use std::{io::Write, path::PathBuf};
+
 pub fn handle_panics() {
     human_panic::setup_panic!(Metadata {
         name: env!("CARGO_PKG_NAME").into(),
@@ -7,26 +9,57 @@ pub fn handle_panics() {
     });
 }
 
-pub fn initialize_logging() {
-    use std::fs::File;
+pub fn initialize_logging(max_level: log::LevelFilter) -> std::io::Result<PathBuf> {
+    use std::{fs::File, path::Path, sync::Mutex};
 
-    struct LogWriter {
-        fp: File,
+    use uuid::Uuid;
+
+    let uuid = Uuid::now_v7();
+    let path = std::env::temp_dir().join(format!("sfsu-log-{uuid}.txt"));
+
+    use log::{Metadata, Record};
+
+    struct FileLogger {
+        fp: Mutex<File>,
     }
 
-    impl LogWriter {
-        pub fn new() -> Self {
-            todo!()
+    impl FileLogger {
+        pub fn new(path: impl AsRef<Path>) -> std::io::Result<Self> {
+            let fp = File::create(path)?;
+
+            Ok(Self {
+                fp: Mutex::new(fp),
+                // max_level,
+            })
         }
     }
 
-    impl std::io::Write for LogWriter {
-        fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-            todo!()
+    impl log::Log for FileLogger {
+        fn enabled(&self, _metadata: &Metadata) -> bool {
+            true
         }
 
-        fn flush(&mut self) -> std::io::Result<()> {
-            todo!()
+        fn log(&self, record: &Record) {
+            if self.enabled(record.metadata()) {
+                writeln!(
+                    &mut self.fp.lock().unwrap(),
+                    "{} - {}",
+                    record.level(),
+                    record.args()
+                )
+                .expect("writing to log to succeed");
+            }
+        }
+
+        fn flush(&self) {
+            self.fp.lock().unwrap().flush().expect("flush file")
         }
     }
+
+    let writer = FileLogger::new(&path)?;
+
+    log::set_boxed_logger(Box::new(writer)).expect("set logger");
+    log::set_max_level(max_level);
+
+    Ok(path)
 }
