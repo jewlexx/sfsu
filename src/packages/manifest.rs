@@ -28,7 +28,7 @@ pub struct Manifest {
     pub autoupdate: Option<Autoupdate>,
     /// Undocumented: Found at https://github.com/se35710/scoop-java/search?l=JSON&q=cookie
     pub cookie: Option<HashMap<String, Option<serde_json::Value>>>,
-    pub depends: Option<TOrArrayOfTs<super::reference::Package>>,
+    pub depends: Option<TOrArrayOfTs<super::reference::ManifestRef>>,
     pub description: Option<String>,
     pub extract_to: Option<StringOrArrayOfStrings>,
     pub homepage: Option<String>,
@@ -36,7 +36,6 @@ pub struct Manifest {
     /// https://github.com/ScoopInstaller/Main/search?l=JSON&q=innosetup
     pub innosetup: Option<bool>,
     pub license: Option<PackageLicense>,
-    #[deprecated]
     pub notes: Option<StringOrArrayOfStrings>,
     pub persist: Option<StringOrArrayOfStringsOrAnArrayOfArrayOfStrings>,
     pub psmodule: Option<Psmodule>,
@@ -159,10 +158,10 @@ pub struct Autoupdate {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct AutoupdateArchitecture {
     #[serde(rename = "32bit")]
-    pub the_32_bit: Option<AutoupdateArch>,
+    pub x86: Option<AutoupdateArch>,
     #[serde(rename = "64bit")]
-    pub the_64_bit: Option<AutoupdateArch>,
-    pub arm64: Option<AutoupdateArch>,
+    pub x64: Option<AutoupdateArch>,
+    pub aarch64: Option<AutoupdateArch>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]

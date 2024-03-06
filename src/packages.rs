@@ -15,13 +15,15 @@ use strum::Display;
 
 use crate::{
     buckets::{self, Bucket},
+    config,
     output::{
         sectioned::{Children, Section, Text},
         wrappers::time::NicerNaiveTime,
     },
-    Scoop,
+    Scoop, SupportedArch,
 };
 
+pub mod downloading;
 pub mod install;
 pub mod manifest;
 pub mod outdated;
@@ -30,7 +32,8 @@ pub mod reference;
 pub use install::Manifest as InstallManifest;
 pub use manifest::Manifest;
 
-use manifest::StringOrArrayOfStringsOrAnArrayOfArrayOfStrings;
+use downloading::DownloadUrl;
+use manifest::{InstallConfig, StringOrArrayOfStringsOrAnArrayOfArrayOfStrings};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "PascalCase")]
@@ -320,6 +323,20 @@ impl InstallManifest {
 
 impl Manifest {
     #[must_use]
+    pub fn install_config(&self, arch: SupportedArch) -> InstallConfig {
+        self.architecture
+            .as_ref()
+            .and_then(|config| config[arch].clone())
+            .unwrap_or_else(|| self.install_config.clone())
+    }
+
+    pub fn download_urls(&self, arch: SupportedArch) -> Option<Vec<DownloadUrl>> {
+        let urls = self.install_config(arch).url?.into_vec();
+
+        Some(urls.into_iter().map(DownloadUrl::from_string).collect())
+    }
+
+    #[must_use]
     pub fn with_bucket(mut self, bucket: &Bucket) -> Self {
         self.bucket = bucket.name().to_string();
 
@@ -330,7 +347,7 @@ impl Manifest {
     /// List the dependencies of a given manifest, in the order that they will be installed
     ///
     /// Note that this does not include the package itself as a dependency
-    pub fn depends(&self) -> Vec<reference::Package> {
+    pub fn depends(&self) -> Vec<reference::ManifestRef> {
         self.depends
             .clone()
             .map(manifest::TOrArrayOfTs::into_vec)
@@ -462,6 +479,40 @@ impl Manifest {
 
         Some(package)
     }
+
+    #[must_use]
+    pub fn set_version(&mut self, version: String) -> std::result::Result<(), SetVersionError> {
+        // self.version = version;
+
+        let autoupdate = self
+            .autoupdate
+            .as_mut()
+            .ok_or(SetVersionError::MissingAutoUpdate)?;
+
+        if let Some(architecture) = autoupdate.architecture.as_mut() {
+            let autoupdate_arch = match Scoop::arch() {
+                SupportedArch::Arm64 => architecture.aarch64.as_mut(),
+                SupportedArch::X64 => architecture.x64.as_mut(),
+                SupportedArch::X86 => architecture.x86.as_mut(),
+            }
+            .ok_or(SetVersionError::MissingAutoUpdate)?;
+
+            // TODO: Figure out hash extraction
+            // autoupdate_arch.hash
+            todo!()
+        }
+
+        todo!()
+    }
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum SetVersionError {
+    #[error("Manifest does not have `autoupdate` field")]
+    MissingAutoUpdate,
+
+    #[error("Manifest architecture section does not have `autoupdate` field")]
+    MissingArchAutoUpdate,
 }
 
 /// Check if the manifest path is installed, and optionally confirm the bucket
